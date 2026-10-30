@@ -1,3 +1,7 @@
+---
+[⬅ Back to articles](../README.md)
+
+
 # Firefox on iPhone: content jitters along with the toolbar
 
 > A real-world case: Vite + React SPA, a dark landing page with an SVG hero at `100svh`. iPhone 11. The first screen is assembled from absolutely positioned elements inside a full-viewport-height hero. The symptom appears only in Firefox on iPhone; Safari on the same phone is perfectly clean, and desktop even more so.
