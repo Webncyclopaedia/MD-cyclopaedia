@@ -1,2 +1,2 @@
 # MD-cyclopaedia
-Markdown articles about software development
+Markdown articles about software development.
