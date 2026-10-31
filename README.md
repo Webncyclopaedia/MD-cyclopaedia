@@ -6,8 +6,8 @@ Welcome! Here we collect useful web guides, code snippets, and solutions.
 
 ### 📂 Articles List
 
-| Article Title | Description | Tags |
-| :--- | :--- | :---: |
+| Article Title | Description |
+| :--- | :--- |
 | 🦊 [Scroll and toolbar behavior in Firefox on iOS](./articles/scroll-firefox-ios-toolbar.md) | Fixing scrolling glitches and toolbar overlay issues in the iOS Firefox browser |
 
 ---
