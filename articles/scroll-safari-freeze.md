@@ -13,16 +13,20 @@ The page opens, the first screen renders, but swiping/scrolling does nothing —
 
 The code contained this legacy hack:
 
-    // Portfolio.tsx — on mount
-    [document.documentElement, document.body, root]
-      .forEach((el) => { el.style.height = "100%"; el.style.margin = "0"; });
+```tsx
+// Portfolio.tsx — on mount
+[document.documentElement, document.body, root]
+  .forEach((el) => { el.style.height = "100%"; el.style.margin = "0"; });
+```
 
 plus this in the global CSS:
 
-    html, body, #root {
-      min-height: 100vh;
-      overflow-x: hidden; /* ← on three levels at once */
-    }
+```css
+html, body, #root {
+  min-height: 100vh;
+  overflow-x: hidden; /* ← on three levels at once */
+}
+```
 
 The trigger combination:
 
@@ -35,9 +39,11 @@ iOS Safari scrolls the document relative to the viewport with rubber-band logic,
 
 In the Safari console — three checks:
 
-    document.body.style.height        // "" — if it's not empty, this is suspect #1
-    getComputedStyle(document.body).overflowX
-    window.scrollTo(0, 2000); window.scrollY   // 0 with a live scrollHeight = scrolling is broken
+```js
+document.body.style.height        // "" — if it's not empty, this is suspect #1
+getComputedStyle(document.body).overflowX
+window.scrollTo(0, 2000); window.scrollY   // 0 with a live scrollHeight = scrolling is broken
+```
 
 And the control experiment that closed the diagnosis: right on the live page, `document.body.style.height = ""` — scrolling instantly came back to life. The cause was confirmed, not guessed.
 

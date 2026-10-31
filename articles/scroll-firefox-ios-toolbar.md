@@ -22,9 +22,11 @@ The difference between the Safari app and Firefox on iOS lies in how toolbars ar
 
 A single visible element whose size is tied to viewport units is enough. In our case it was the hero:
 
-    .hero {
-      height: 100svh; /* ← in Firefox iOS this is a dynamic height */
-    }
+```css
+.hero {
+  height: 100svh; /* ← in Firefox iOS this is a dynamic height */
+}
+```
 
 The chain: swipe → the toolbar starts hiding → the WKWebView is resized by ~60–120px → `100svh` is recomputed → the hero changes height → the absolutely positioned name, profile, and scroll hint shift → a visual jolt. `min-height: 100vh` on the sections below the fold changes at that moment too, but it goes unnoticed (only the document's total height changes) — which is why it's the first screen that "jumps".
 
@@ -36,35 +38,37 @@ The first hypothesis was `overflow-x`: we tried every variation of "overflow on 
 
 This can't be cured with CSS (any viewport unit is dynamic in this environment). What does cure it is locking the height in pixels while ignoring "toolbar" resizes:
 
-    useEffect(() => {
-      const hero = heroRef.current;
-      if (!hero) return;
+```tsx
+useEffect(() => {
+  const hero = heroRef.current;
+  if (!hero) return;
 
-      const isTouch = window.matchMedia("(pointer: coarse)").matches;
-      const threshold = isTouch ? 150 : 0; // toolbar ~60–120px < 150 → ignore
-      let lockedHeight = window.innerHeight;
+  const isTouch = window.matchMedia("(pointer: coarse)").matches;
+  const threshold = isTouch ? 150 : 0; // toolbar ~60–120px < 150 → ignore
+  let lockedHeight = window.innerHeight;
 
-      const apply = () => { hero.style.height = `${lockedHeight}px`; };
-      const onResize = () => {
-        const h = window.innerHeight;
-        if (Math.abs(h - lockedHeight) < threshold) return;
-        lockedHeight = h;
-        apply();
-      };
-      const onOrient = () => requestAnimationFrame(() => {
-        lockedHeight = window.innerHeight;
-        apply();
-      });
+  const apply = () => { hero.style.height = `${lockedHeight}px`; };
+  const onResize = () => {
+    const h = window.innerHeight;
+    if (Math.abs(h - lockedHeight) < threshold) return;
+    lockedHeight = h;
+    apply();
+  };
+  const onOrient = () => requestAnimationFrame(() => {
+    lockedHeight = window.innerHeight;
+    apply();
+  });
 
-      apply();
-      window.addEventListener("resize", onResize);
-      window.addEventListener("orientationchange", onOrient);
-      return () => {
-        window.removeEventListener("resize", onResize);
-        window.removeEventListener("orientationchange", onOrient);
-        hero.style.height = "";
-      };
-    }, []);
+  apply();
+  window.addEventListener("resize", onResize);
+  window.addEventListener("orientationchange", onOrient);
+  return () => {
+    window.removeEventListener("resize", onResize);
+    window.removeEventListener("orientationchange", onOrient);
+    hero.style.height = "";
+  };
+}, []);
+```
 
 Nuances of the solution:
 
