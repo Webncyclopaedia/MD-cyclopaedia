@@ -1,11 +1,11 @@
 # 📚 Markdown encyclopaedia
 
-**Practical guides, snippets, and fixes collected from real production cases.**
+**A Markdown knowledge base about web development: real bugs, the mechanics behind them, and fixes you can paste.**
+
+Everything here comes from shipped front-end work — SPA landing pages, Vite + React projects, CSS layout in production. No link dumps, no "10 best frameworks" lists: each entry starts with a real symptom, explains **why** the browser behaves that way, and ends with working code.
 
 
 ## 📂 Articles
-
-Every entry starts with a real bug, explains **why** it happens, and ends with a fix you can paste — not with a list of links.
 
 | # | Article | What it fixes |
 | :-: | :--- | :--- |
@@ -22,8 +22,9 @@ Every article opens **and** ends with the **`⬅ Back to articles`** link. Use i
 ## 🤝 Contributing
 
 1. Copy the structure of an existing article: back link at the top, `# Title`, a case blockquote, sections, `---`, and a `## Takeaways (checklist)`.
-2. Write in English, use fenced code blocks with an explicit language tag, and translate code comments too.
-3. Add the new entry to the table above.
+2. Keep it web-dev focused: a reproducible front-end symptom, the mechanics behind it, and a fix.
+3. Write in English, use fenced code blocks with an explicit language tag (`css`, `tsx`, `js`, `bash`), and translate code comments too.
+4. Add the new entry to the table above.
 
 
 *Feel free to contribute.*
