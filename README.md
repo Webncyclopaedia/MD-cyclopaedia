@@ -1,21 +1,29 @@
 # 📚 Markdown encyclopaedia
 
-Welcome! Here we collect useful web guides, code snippets, and solutions.
+**Practical guides, snippets, and fixes collected from real production cases.**
 
----
 
-### 📂 Articles List
+## 📂 Articles
 
-| Article Title | Description |
-| :--- | :--- |
-| 🦊 [Scroll and toolbar behavior in Firefox on iOS](./articles/scroll-firefox-ios-toolbar.md) | Fixing scrolling glitches and toolbar overlay issues in the iOS Firefox browser |
-| 🧭 [iOS Safari freezes on the first screen: scrolling is dead](./articles/scroll-safari-freeze.md) | Diagnosing a locked document scroll caused by `height: 100%` and root-level `overflow-x: hidden` |
-| 📱 [Icons that iPhone "eats": iOS WebKit and inline SVG percentages](./articles/svg-icons-ios.md) | Fixing squashed and clipped inline SVG icons caused by percentage sizes inside a flex container |
+Every entry starts with a real bug, explains **why** it happens, and ends with a fix you can paste — not with a list of links.
 
----
+| # | Article | What it fixes |
+| :-: | :--- | :--- |
+| 1 | 🦊 [Firefox on iPhone: content jitters along with the toolbar](./articles/scroll-firefox-ios-toolbar.md) | Hero content jumps in sync with the toolbar hide/show animation |
+| 2 | 🧭 [iOS Safari freezes on the first screen: scrolling is dead](./articles/scroll-safari-freeze.md) | Document scroll locked by a root-level `overflow-x: hidden` + `height: 100%` |
+| 3 | 📱 [Icons that iPhone "eats": iOS WebKit and inline SVG percentages](./articles/svg-icons-ios.md) | Inline SVG squashed and clipped inside a round flex button |
 
-### 💡 Navigation Tip
-Inside each article find the **`⬅ Back to articles`** link. Click it to return to this main list instantly without using your browser's back button.
 
----
+## 💡 Navigation tip
+
+Every article opens **and** ends with the **`⬅ Back to articles`** link. Use it to return to this list instantly, without the browser's back button.
+
+
+## 🤝 Contributing
+
+1. Copy the structure of an existing article: back link at the top, `# Title`, a case blockquote, sections, `---`, and a `## Takeaways (checklist)`.
+2. Write in English, use fenced code blocks with an explicit language tag, and translate code comments too.
+3. Add the new entry to the table above.
+
+
 *Feel free to contribute.*
