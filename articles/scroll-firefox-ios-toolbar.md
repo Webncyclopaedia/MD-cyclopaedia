@@ -83,3 +83,7 @@ Nuances of the solution:
 3.  The marker of the real cause is the symptom correlating with the toolbar, not with scrolling. If the jolt coincides with the toolbar animation, forget overflow and look for viewport units.
 4.  Lock the height only of the visible first-screen elements: invisible `min-height` changes below the fold don't bother users, and extra JS is an extra point of failure.
 5.  Choose the threshold in the `resize` handler based on the physics of toolbars (~120px max) — it's what distinguishes a "toolbar" resize from a real one (rotation, window change).
+
+
+[⬅ Back to articles](../README.md)
+---
