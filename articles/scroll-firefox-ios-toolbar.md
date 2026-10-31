@@ -1,4 +1,3 @@
----
 [⬅ Back to articles](../README.md)
 
 
@@ -86,5 +85,3 @@ Nuances of the solution:
 
 
 [⬅ Back to articles](../README.md)
-
----
