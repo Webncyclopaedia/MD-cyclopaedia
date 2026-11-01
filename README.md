@@ -19,6 +19,7 @@ Everything here comes from shipped front-end work — SPA landing pages, Vite + 
 | 8 | 🪙 [The cent that never came back: `Math.round` is not symmetric](./articles/money-rounding-negative-ledger.md) | One-directional ledger drift caused by rounding negative refund amounts |
 | 9 | 🌍 [€1.234,56 became €1,23: `parseFloat` and the locale](./articles/locale-money-input-parsefloat.md) | Locale-formatted money parsed back with `parseFloat` → 1000× too small |
 | 10 | 📉 [The chart froze while the socket stayed OPEN](./articles/websocket-frozen-chart-half-open.md) | Half-open WebSocket with no heartbeat, so the feed dies silently |
+| 11 | 📋 [The virtualized table that rendered nothing](./articles/react-virtualized-blank-table.md) | `AutoSizer` measuring `0` height and `CellMeasurerCache` keyed by index |
 
 
 ## 💡 Navigation tip
