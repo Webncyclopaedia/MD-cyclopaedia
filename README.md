@@ -12,6 +12,7 @@ Everything here comes from shipped front-end work — SPA landing pages, Vite + 
 | 1 | 🦊 [Firefox on iPhone: content jitters along with the toolbar](./articles/scroll-firefox-ios-toolbar.md) | Hero content jumps in sync with the toolbar hide/show animation |
 | 2 | 🧭 [iOS Safari freezes on the first screen: scrolling is dead](./articles/scroll-safari-freeze.md) | Document scroll locked by a root-level `overflow-x: hidden` + `height: 100%` |
 | 3 | 📱 [Icons that iPhone "eats": iOS WebKit and inline SVG percentages](./articles/svg-icons-ios.md) | Inline SVG squashed and clipped inside a round flex button |
+| 4 | 🧱 [The flex item that refuses to shrink: `min-width: auto`](./articles/flex-item-min-width-auto.md) | Horizontal page scroll on mobile caused by a flex item that can't shrink |
 
 
 ## 💡 Navigation tip
