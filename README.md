@@ -13,6 +13,7 @@ Everything here comes from shipped front-end work — SPA landing pages, Vite + 
 | 2 | 🧭 [iOS Safari freezes on the first screen: scrolling is dead](./articles/scroll-safari-freeze.md) | Document scroll locked by a root-level `overflow-x: hidden` + `height: 100%` |
 | 3 | 📱 [Icons that iPhone "eats": iOS WebKit and inline SVG percentages](./articles/svg-icons-ios.md) | Inline SVG squashed and clipped inside a round flex button |
 | 4 | 🧱 [The flex item that refuses to shrink: `min-width: auto`](./articles/flex-item-min-width-auto.md) | Horizontal page scroll on mobile caused by a flex item that can't shrink |
+| 5 | 🔍 [iOS Safari zooms the page when you tap an input](./articles/ios-input-autozoom.md) | Form controls under 16px trigger auto-zoom, shifting fixed UI off-screen |
 
 
 ## 💡 Navigation tip
