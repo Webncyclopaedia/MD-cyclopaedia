@@ -16,6 +16,7 @@ Everything here comes from shipped front-end work — SPA landing pages, Vite + 
 | 5 | 🔍 [iOS Safari zooms the page when you tap an input](./articles/ios-input-autozoom.md) | Form controls under 16px trigger auto-zoom, shifting fixed UI off-screen |
 | 6 | 🥞 [`z-index: 9999` and still underneath: the stacking context nobody declared](./articles/z-index-stacking-context.md) | Overlays trapped by an ancestor `transform`/`filter`/`opacity` |
 | 7 | 🗄️ [IndexedDB finished my transaction while I was `await`ing](./articles/indexeddb-transaction-inactive.md) | `TransactionInactiveError` from awaiting inside an auto-committing transaction |
+| 8 | 🪙 [The cent that never came back: `Math.round` is not symmetric](./articles/money-rounding-negative-ledger.md) | One-directional ledger drift caused by rounding negative refund amounts |
 
 
 ## 💡 Navigation tip
