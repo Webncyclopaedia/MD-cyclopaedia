@@ -20,6 +20,7 @@ Everything here comes from shipped front-end work — SPA landing pages, Vite + 
 | 9 | 🌍 [€1.234,56 became €1,23: `parseFloat` and the locale](./articles/locale-money-input-parsefloat.md) | Locale-formatted money parsed back with `parseFloat` → 1000× too small |
 | 10 | 📉 [The chart froze while the socket stayed OPEN](./articles/websocket-frozen-chart-half-open.md) | Half-open WebSocket with no heartbeat, so the feed dies silently |
 | 11 | 📋 [The virtualized table that rendered nothing](./articles/react-virtualized-blank-table.md) | `AutoSizer` measuring `0` height and `CellMeasurerCache` keyed by index |
+| 12 | ⚖️ ["1,299" became €1.30: one separator, no locale](./articles/price-separator-ambiguity.md) | A separator heuristic silently divides whole-euro prices by 1000 |
 
 
 ## 💡 Navigation tip
