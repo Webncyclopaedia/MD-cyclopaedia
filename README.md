@@ -4,29 +4,27 @@
 
 Everything here comes from shipped front-end work — SPA landing pages, Vite + React projects, CSS layout in production. No link dumps, no "10 best frameworks" lists: each entry starts with a real symptom, explains **why** the browser behaves that way, and ends with working code.
 
-
 ## 📂 Articles
 
-| # | Article | What it fixes |
-| :-: | :--- | :--- |
-| 1 | 🦊 [Firefox on iPhone: content jitters along with the toolbar](./articles/scroll-firefox-ios-toolbar.md) | Hero content jumps in sync with the toolbar hide/show animation |
-| 2 | 🧭 [iOS Safari freezes on the first screen: scrolling is dead](./articles/scroll-safari-freeze.md) | Document scroll locked by a root-level `overflow-x: hidden` + `height: 100%` |
-| 3 | 📱 [Icons that iPhone "eats": iOS WebKit and inline SVG percentages](./articles/svg-icons-ios.md) | Inline SVG squashed and clipped inside a round flex button |
-| 4 | 🧱 [The flex item that refuses to shrink: `min-width: auto`](./articles/flex-item-min-width-auto.md) | Horizontal page scroll on mobile caused by a flex item that can't shrink |
-| 5 | 🔍 [iOS Safari zooms the page when you tap an input](./articles/ios-input-autozoom.md) | Form controls under 16px trigger auto-zoom, shifting fixed UI off-screen |
-| 6 | 🥞 [`z-index: 9999` and still underneath: the stacking context nobody declared](./articles/z-index-stacking-context.md) | Overlays trapped by an ancestor `transform`/`filter`/`opacity` |
-| 7 | 🗄️ [IndexedDB finished my transaction while I was `await`ing](./articles/indexeddb-transaction-inactive.md) | `TransactionInactiveError` from awaiting inside an auto-committing transaction |
-| 8 | 🪙 [The cent that never came back: `Math.round` is not symmetric](./articles/money-rounding-negative-ledger.md) | One-directional ledger drift caused by rounding negative refund amounts |
-| 9 | 🌍 [€1.234,56 became €1,23: `parseFloat` and the locale](./articles/locale-money-input-parsefloat.md) | Locale-formatted money parsed back with `parseFloat` → 1000× too small |
-| 10 | 📉 [The chart froze while the socket stayed OPEN](./articles/websocket-frozen-chart-half-open.md) | Half-open WebSocket with no heartbeat, so the feed dies silently |
-| 11 | 📋 [The virtualized table that rendered nothing](./articles/react-virtualized-blank-table.md) | `AutoSizer` measuring `0` height and `CellMeasurerCache` keyed by index |
-| 12 | ⚖️ ["1,299" became €1.30: one separator, no locale](./articles/price-separator-ambiguity.md) | A separator heuristic silently divides whole-euro prices by 1000 |
-
+|  #  | Article                                                                                                                                | What it fixes                                                                                 |
+| :-: | :------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
+|  1  | 🦊 [Firefox on iPhone: content jitters along with the toolbar](./articles/scroll-firefox-ios-toolbar.md)                               | Hero content jumps in sync with the toolbar hide/show animation                               |
+|  2  | 🧭 [iOS Safari freezes on the first screen: scrolling is dead](./articles/scroll-safari-freeze.md)                                     | Document scroll locked by a root-level `overflow-x: hidden` + `height: 100%`                  |
+|  3  | 📱 [Icons that iPhone "eats": iOS WebKit and inline SVG percentages](./articles/svg-icons-ios.md)                                      | Inline SVG squashed and clipped inside a round flex button                                    |
+|  4  | 🧱 [The flex item that refuses to shrink: `min-width: auto`](./articles/flex-item-min-width-auto.md)                                   | Horizontal page scroll on mobile caused by a flex item that can't shrink                      |
+|  5  | 🔍 [iOS Safari zooms the page when you tap an input](./articles/ios-input-autozoom.md)                                                 | Form controls under 16px trigger auto-zoom, shifting fixed UI off-screen                      |
+|  6  | 🥞 [`z-index: 9999` and still underneath: the stacking context nobody declared](./articles/z-index-stacking-context.md)                | Overlays trapped by an ancestor `transform`/`filter`/`opacity`                                |
+|  7  | 🗄️ [IndexedDB finished my transaction while I was `await`ing](./articles/indexeddb-transaction-inactive.md)                            | `TransactionInactiveError` from awaiting inside an auto-committing transaction                |
+|  8  | 🪙 [The cent that never came back: `Math.round` is not symmetric](./articles/money-rounding-negative-ledger.md)                        | One-directional ledger drift caused by rounding negative refund amounts                       |
+|  9  | 🌍 [€1.234,56 became €1,23: `parseFloat` and the locale](./articles/locale-money-input-parsefloat.md)                                  | Locale-formatted money parsed back with `parseFloat` → 1000× too small                        |
+| 10  | 📉 [The chart froze while the socket stayed OPEN](./articles/websocket-frozen-chart-half-open.md)                                      | Half-open WebSocket with no heartbeat, so the feed dies silently                              |
+| 11  | 📋 [The virtualized table that rendered nothing](./articles/react-virtualized-blank-table.md)                                          | `AutoSizer` measuring `0` height and `CellMeasurerCache` keyed by index                       |
+| 12  | 📅 [The booking that jumped a day back: `new Date("2026-03-01")` is not the date you think](./articles/date-iso-utc-off-by-one-day.md) | Date-only ISO strings parsed as UTC midnight, shifting the calendar day for users west of UTC |
+| 13  | ⚖️ ["1,299" became €1.30: one separator, no locale](./articles/price-separator-ambiguity.md)                                           | A separator heuristic silently divides whole-euro prices by 1000                              |
 
 ## 💡 Navigation tip
 
 Every article opens **and** ends with the **`⬅ Back to articles`** link. Use it to return to this list instantly, without the browser's back button.
-
 
 ## 🤝 Contributing
 
@@ -35,5 +33,4 @@ Every article opens **and** ends with the **`⬅ Back to articles`** link. Use i
 3. Write in English, use fenced code blocks with an explicit language tag (`css`, `tsx`, `js`, `bash`), and translate code comments too.
 4. Add the new entry to the table above.
 
-
-*Feel free to contribute.*
+_Feel free to contribute._
