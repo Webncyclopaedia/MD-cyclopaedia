@@ -246,6 +246,6 @@ Better yet, sort by a real `created_at` and stop deriving order from IDs at all.
 4.  **The console shows the rounded value too** — and so does DevTools' JSON preview, because both re-serialize the parsed object. Only the raw response text (`text()`, `curl`) is trustworthy.
 5.  **IDs are strings.** Declare them as `string` in the API schema (or `id_str` alongside a legacy numeric field), keep them as strings in state, keys, URLs and storage, and brand the type so `Number(id)` has to be written deliberately.
 6.  **After `JSON.parse` the digits are unrecoverable.** A reviver can only warn; the fix is either strings on the wire or a lossless parser (`lossless-json`, `json-bigint`).
-7.  **Reserve real numbers for arithmetic, and assert `Number.isSafeInteger` at every boundary.** A test fixture with a production-shaped 19-digit ID would have caught this before it shipped — and would have caught the duplicate React key on the spot.
+7.  **Reserve real numbers for arithmetic, and assert `Number.isSafeInteger` at every boundary.** A test fixture with a production-shaped 19-digit ID would have caught this before it shipped - and would have caught the duplicate React key on the spot.
 
 [⬅ Back to articles](../README.md)
