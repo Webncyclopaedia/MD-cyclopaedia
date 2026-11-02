@@ -2,7 +2,7 @@
 
 **A Markdown knowledge base about web development: real bugs, the mechanics behind them, and fixes you can paste.**
 
-Everything here comes from shipped front-end work — SPA landing pages, Vite + React projects, CSS layout in production. No link dumps, no "10 best frameworks" lists: each entry starts with a real symptom, explains **why** the browser behaves that way, and ends with working code.
+Everything here comes from shipped front-end work - SPA landing pages, Vite + React projects, CSS layout in production. No link dumps, no "10 best frameworks" lists: each entry starts with a real symptom, explains **why** the browser behaves that way, and ends with working code.
 
 ## 📂 Articles
 
