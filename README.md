@@ -19,7 +19,7 @@ Everything here comes from shipped front-end work — SPA landing pages, Vite + 
 |  9  | 🌍 [€1.234,56 became €1,23: `parseFloat` and the locale](./articles/locale-money-input-parsefloat.md)                                  | Locale-formatted money parsed back with `parseFloat` → 1000× too small                        |
 | 10  | 📉 [The chart froze while the socket stayed OPEN](./articles/websocket-frozen-chart-half-open.md)                                      | Half-open WebSocket with no heartbeat, so the feed dies silently                              |
 | 11  | 📋 [The virtualized table that rendered nothing](./articles/react-virtualized-blank-table.md)                                          | `AutoSizer` measuring `0` height and `CellMeasurerCache` keyed by index                       |
-| 12  | 📅 [The booking that jumped a day back: `new Date("2026-03-01")` is not the date you think](./articles/date-iso-utc-off-by-one-day.md) | Date-only ISO strings parsed as UTC midnight, shifting the calendar day for users west of UTC |
+| 12  | 📅 [The booking that jumped a day back: `new Date("2026-03-01")` is not the date you think](./articles/date-iso-utc-off-by-one-day.md) | Date-only strings parsed as UTC midnight: the day slides back on display west of UTC and on save east of it |
 | 13  | ⚖️ ["1,299" became €1.30: one separator, no locale](./articles/price-separator-ambiguity.md)                                           | A separator heuristic silently divides whole-euro prices by 1000                              |
 
 ## 💡 Navigation tip
