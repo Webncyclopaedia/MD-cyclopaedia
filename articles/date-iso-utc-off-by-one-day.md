@@ -3,161 +3,202 @@
 
 # The booking that jumped a day back: `new Date("2026-03-01")` is not the date you think
 
-> A real-world case: Vite + React booking app. The user picks **March 1** on the calendar, the API stores the clean string `"2026-03-01"`, the confirmation screen renders it back — and highlights **February 28**. The server says the record is correct. The local test suite passes. The bug appears only for users in the Americas and only on the "view" pages, never on the "edit" pages.
+> A real-world case: a Vite + React booking app. The user picks **March 1** on the calendar. The server stores the clean string `"2026-03-01"`. The confirmation page shows... **February 28**. The database is correct. The network response is correct. Only the rendered page is wrong — and only for some users, in some parts of the world.
 
 ## Symptom
 
-A date that was chosen once comes back as the previous day. The off-by-one rides on the timezone:
+A date that was picked once comes back as the day before.
 
-- In Berlin everything is fine. In New York, Los Angeles, São Paulo — the day before.
-- It's **directional**: nobody ever sees "March 2" instead of "March 1", only "Feb 28". The drift is always one day back, never forward.
-- Re-saving the booking "fixes" it, then it breaks again after the next roundtrip through the display code.
-- The database column is a plain `DATE` ("2026-03-01"). The string in the network response is correct. Only the rendered calendar cell is wrong.
+- It works for the developer in Berlin. It breaks for users in New York or Los Angeles.
+- The stored data is right: the database says `"2026-03-01"`, the JSON response says `"2026-03-01"`.
+- So you check the logs — and the logs look fine too (more on why below, it's the sneakiest part).
+- The page itself is the only place where March 1 has quietly become Feb 28.
 
-## When it appears
+## Where it starts
 
-The suspicious line is short and innocent:
+The code looks harmless:
 
 ```js
-const bookedAt = new Date("2026-03-01"); // "parse the date"
+const bookedAt = new Date("2026-03-01"); // "turn the string into a Date"
 
-form.setValue("date", bookedAt); // a DatePicker receives a Date object
+form.setValue("date", bookedAt); // the DatePicker wants a Date object
 ```
 
-The trigger combination:
-
-1.  The business concept is a **calendar date** — "the night of March 1", not "an instant in time";
-2.  The code converts the string to a `Date` to feed a picker, then converts back for display;
-3.  Those conversions go through **UTC** on the way in and through **local time** on the way out.
-
-## The mechanics of the bug
-
-The ECMAScript spec defines exactly two behaviours for string parsing, and they disagree:
-
-| Input string | Parsed as |
-| :--- | :--- |
-| `"2026-03-01"` (date-only) | **UTC midnight** `00:00:00 UTC` |
-| `"2026-03-01T00:00:00"` (date + time, no zone) | **local** midnight |
-| `"2026-03-01T00:00:00Z"` (with `Z`) | UTC, explicitly |
-
-So `new Date("2026-03-01")` is not "March 1" — it is *the instant UTC midnight of March 1*. For anyone west of Greenwich that instant falls on the **previous local day**:
+And the display goes back the other way:
 
 ```js
-// A user in New York (UTC-5 in winter)
+date.toLocaleDateString(); // "2/28/2026" ← wait, what?
+```
+
+String in, `Date` in the middle, string out. Three steps, and one of them throws the day off by a few hours — enough to cross midnight.
+
+## Why the browser does this
+
+First fact about `Date`: it does **not** hold a date. It holds one number — milliseconds since Jan 1, 1970, UTC. A `Date` always means "an exact moment". To show it as a calendar day, the browser converts that moment into **your local clock time**. Where you live changes the answer.
+
+Second fact: JavaScript parses date strings in two different ways depending on their shape:
+
+| Input string | The browser reads it as |
+| :--- | :--- |
+| `"2026-03-01"` (only a date) | midnight **UTC** — one fixed point in time |
+| `"2026-03-01T00:00:00"` (date + time, no zone) | midnight **your local time** |
+| `"2026-03-01T00:00:00Z"` (date + time + `Z`) | midnight UTC — you asked for it |
+
+Here is the trap. `"2026-03-01"` means "midnight UTC of March 1" — but midnight UTC is a **different hour of the day** depending on where you live:
+
+```js
+// Same line of code, two different users:
+
+// A user in New York (5 hours behind UTC):
+const d = new Date("2026-03-01");
+d.toString();        // "Sat Feb 28 2026 19:00:00 GMT-0500"
+d.getDate();         // 28 ← the calendar highlights the wrong cell
+
+// A user in Tokyo (9 hours ahead of UTC):
+const e = new Date("2026-03-01");
+e.toString();        // "Sun Mar 01 2026 09:00:00 GMT+0900"
+e.getDate();         // 1 ← everything looks normal
+```
+
+The string is the same. The `Date` is the same. But midnight UTC falls on **Feb 28, 7 pm** in New York and on **March 1, 9 am** in Tokyo. Only people behind UTC get bitten by this direction of the bug — which is exactly why it survived code review: the reviewer lived in Europe.
+
+## The other direction of the same bug
+
+One important correction to how I first explained this: the bug is **not only about parsing, and not only about users west of UTC**. The same midnight problem works in reverse — on the way **out** — for users east of UTC.
+
+Imagine Tokyo again. A date picker builds the date from parts, in local time:
+
+```js
+// Tokyo user picks March 1:
+const d = new Date(2026, 2, 1); // March 1, 00:00 Tokyo time
+
+d.toISOString().slice(0, 10);   // "2026-02-28" ← one day back, right at save
+```
+
+Midnight **Tokyo** time of March 1 is still "Feb 28, 3 pm" in UTC. `toISOString()` always prints UTC, so the string saved to the server is `"2026-02-28"`. After a reload, the user sees the day before.
+
+So the full picture:
+
+| User lives in | Parsing date-only strings... | Saving local-midnight Dates with `toISOString()`... |
+| :--- | :--- | :--- |
+| West of UTC (New York) | breaks: the day slides back **when displaying** | looks fine |
+| East of UTC (Tokyo) | looks fine | breaks: the day slides back **when saving** |
+| Near UTC (London, winter) | looks fine | looks fine |
+
+Either way, the day that gets eaten is always the one at the UTC boundary. My earlier "it only shifts backward, and only for Americans" was half the story: Americans lose the day on **read**, everyone east loses it on **write**. Both patches below are needed.
+
+## The sneakiest part: logs that look correct
+
+While debugging, two lines next to each other can both "look right":
+
+```js
 const d = new Date("2026-03-01");
 
-d.toISOString();      // "2026-03-01T00:00:00.000Z"  ← the string came back intact
-d.toString();         // "Sat Feb 28 2026 19:00:00 GMT-0500"
-d.getDate();          // 28  ← the calendar highlights the wrong cell
+d.toISOString();        // "2026-03-01T00:00:00.000Z" ← the original string, back again
+d.toLocaleDateString(); // "2/28/2026"                ← the user's local day
 ```
 
-The roundtrip then re-encodes the shifted instant. Display code usually does one of these, and both leak local time:
+`toISOString()` prints UTC — it hands back the exact string you started with. Every "local" getter (`getDate`, `getMonth`, `toLocaleDateString`) reads your own clock. So the first log says "all good" and the second one shows the bug — and you spend an hour doubting the second one.
+
+## A quick test that proves it
+
+Run this in the browser console of the affected user (or set your machine's clock for the test):
 
 ```js
-d.toLocaleDateString("en-US"); // "2/28/2026"           ← local wall clock
-d.getFullYear(), d.getMonth(); // 2026, 1               ← local components
-```
-
-The nastiest part: `toISOString()` prints the **original** string. So one log shows `"2026-03-01"` (looks fine!) while the very next line renders `Feb 28`. The bug hides between two "correct-looking" debug outputs.
-
-Why it's always one day **back**: serialization moves midnight-UTC into a negative-offset local zone, and `Date` has no concept of "a date" to protect it — a `Date` in JavaScript is a millisecond count since epoch, nothing more. There is no such value as `Date(2026, 2, 1)` *as a calendar day*; you only ever hold instants.
-
-The mirror-image trap also exists: `new Date("2026-03-01T00:00:00")` (without `Z`) is parsed as **local** time. Move the same string between a browser in Berlin and a server in UTC and it lands on two different instants. Date-only forms parse as UTC, date-time forms parse as local — the asymmetry is the bug.
-
-## The diagnostic that proves it in 30 seconds
-
-```js
-function diagnose(dateInput) {
-  const d = new Date(dateInput);
-  console.log({
-    input: dateInput,
-    iso: d.toISOString(),              // which instant did it become?
-    localDate: d.toLocaleDateString(), // which day does the user see?
-    offsetMin: d.getTimezoneOffset(),  // minutes BEHIND UTC (NY: 300, Berlin: -60)
+function diagnose(input) {
+  const d = new Date(input);
+  console.table({
+    "string in": input,
+    "instant (UTC)": d.toISOString(),
+    "day the user sees": d.toLocaleDateString(),
+    // A Date's own offset, in minutes. Positive = you are BEHIND UTC
+    // (New York: 300, London winter: 0, Tokyo: -540). The sign is the
+    // opposite of what most people expect — that tripped me up too.
+    "offset (min)": d.getTimezoneOffset(),
   });
 }
 
 diagnose("2026-03-01");
-// New York: { iso: "2026-03-01T00:00:00.000Z", localDate: "2/28/2026", offsetMin: 300 }
-// Berlin:   { iso: "2026-03-01T00:00:00.000Z", localDate: "3/1/2026",  offsetMin: -60 }
 ```
 
-Run it in the affected user's timezone (or set the machine clock to New York). If `iso` and `localDate` disagree on the calendar day, you have this bug. An instant `getTimezoneOffset() > 0` (Americas) with a date-only input is the exact failure configuration — which is why European developers don't see it and CI doesn't either.
+If **"instant (UTC)"** says one day and **"day the user sees"** says another — that's this bug, confirmed. If the offset is positive (Americas), the break shows on display; if negative (Asia, Oceania), watch out for the save path instead.
 
 ## The fix
 
-### 1. Don't convert calendar dates to `Date` at all (the real fix)
+### 1. Best fix: stop turning calendar dates into `Date` objects
 
-A booking date, an invoice date, a birthday — these are not instants. Pass them through the system as the strings they already are:
+A booking night, an invoice date, a birthday — these are **not moments in time**. They are just day labels. Keep them as strings everywhere:
 
 ```ts
-type CalendarDate = `${number}-${number}-${number}`; // "2026-03-01"
+type CalendarDate = string; // always "2026-03-01", always zero-padded, always 10 chars
 
-function isCalendarDate(s: string): s is CalendarDate {
+function isCalendarDate(s: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(s);
 }
 
-// Comparison, sorting, "is it in the past" — all on strings,
-// no timezone anywhere in the pipeline:
-const isPast = (d: CalendarDate, today: CalendarDate) => d < today; // ISO strings sort lexicographically
-```
-
-The calendar highlights March 1 because it receives `"2026-03-01"` and the picker is configured with a `valueFormat`/`dateFormat` instead of a `Date`. Most libraries support this — use it before reaching for `Date`.
-
-### 2. When a `Date` is required, parse the components yourself
-
-```js
-// WRONG: parsed as UTC midnight, shifts locally
-const d = new Date("2026-03-01");
-
-// RIGHT: build local noon from the string's own numbers
-function parseCalendarDate(s) {
-  const [y, m, day] = s.split("-").map(Number);
-  return new Date(y, m - 1, day, 12, 0, 0, 0); // months are 0-based!
+function isPast(day: CalendarDate, today: CalendarDate): boolean {
+  // Safe to compare with < : both strings are equal-length and zero-padded,
+  // so plain string comparison = date comparison. No timezone anywhere.
+  return day < today;
 }
 ```
 
-Anchoring at **noon local** is the safety net: even if this `Date` later shifts by a few hours through a serialization or a `toLocaleString` in some other zone, it cannot cross a midnight boundary and land on another day.
+Pass `"2026-03-01"` to the date picker via its string format option (most libraries have one — look for `valueFormat` or `dateFormat`). Zero `Date` objects involved, zero ways to drift. This one change removes the entire bug class.
 
-### 3. Produce the display string from the stored string, not from the instant
+### 2. If some library insists on a `Date`: build it from parts
 
-The "view as March 1" rendering should not go through `Date` formatting either:
+Never parse a date-only **string**. Read the numbers out of it and build the `Date` yourself, in local time:
 
 ```js
-// If you must format, do it from parts — or pin the zone explicitly:
-new Intl.DateTimeFormat("en-US", {
-  timeZone: "UTC",              // read back the very instant the string encodes
-  dateStyle: "long",
-}).format(new Date("2026-03-01")); // "March 1, 2026" — for every user
+// WRONG: parsed as midnight UTC, shifts under the user's feet
+const d = new Date("2026-03-01");
+
+// RIGHT: the string's own numbers, local noon
+function parseCalendarDate(s) {
+  const [y, m, day] = s.split("-").map(Number);
+  return new Date(y, m - 1, day, 12, 0, 0, 0); // months count from 0!
+}
 ```
 
-`timeZone: "UTC"` on a date-only value is correct **and** stable across timezones — display stops depending on where the user lives.
+Why **noon**? Because noon sits safely in the middle of the day. Even if this `Date` later shifts by a few hours through a serialization or a display call, 12:00 never crosses midnight, so the day we render stays the day we meant.
 
-### 4. The future-proof fix: `Temporal.PlainDate`
+### 3. When saving: keep the string, or print UTC on purpose
 
-The platform now has a type that actually means "a calendar date with no clock":
+The Tokyo bug came from `.toISOString()` on a local-midnight `Date`. Don't do that — send the string you already have. If you truly have a `Date` and need a string, format it in UTC **explicitly**, so every user gets the same answer:
+
+```js
+new Intl.DateTimeFormat("en-US", {
+  timeZone: "UTC",     // read back exactly the moment the Date represents
+  dateStyle: "long",
+}).format(d);           // "March 1, 2026" — same in New York, Tokyo, anywhere
+```
+
+Mentioned as a correction: the rule is not "always avoid UTC". The rule is **one timezone, chosen by you**, from input to output. The bug appears exactly where the code switches timezones without saying so — parse = one switch, `toISOString` = the other.
+
+### 4. The proper long-term fix: `Temporal.PlainDate`
+
+JavaScript now has a type that really means "a calendar day, no clock attached":
 
 ```js
 const day = Temporal.PlainDate.from("2026-03-01");
 
-day.toString();        // "2026-03-01" — no drift, ever
-day.equals(otherDay);  // honest comparison
-day.toLocaleString();  // "March 1, 2026" — no instant, no zone involved
+day.toString();       // "2026-03-01" — no drift, by design
+day.equals(otherDay); // honest comparison
 ```
 
-`PlainDate` cannot be shifted by a timezone because it holds no zone and no time. Where `Temporal` is available (or polyfilled), it is the correct type for every "date" field in the domain.
+`PlainDate` has no time and no zone inside, so there is nothing to shift. Once support (or the polyfill) is acceptable for your project, every "date" field in the app should become a `PlainDate`.
 
 ---
 
 ## Takeaways (checklist)
 
-1.  **`Date` is an instant, not a date.** It stores milliseconds since epoch. "March 1" is not representable — everything you do with it goes through a timezone, explicitly or not.
-2.  **The parse asymmetry is the spec:** `"2026-03-01"` → UTC midnight, `"2026-03-01T00:00:00"` (no zone) → local midnight. Same string minus the time part flips the timezone.
-3.  **The drift is directional and regional:** users west of UTC see the previous day; European users and CI servers see nothing. Test with `Intl.DateTimeFormat().resolvedOptions().timeZone` set to an American zone.
-4.  **`toISOString()` lies helpfully:** it re-prints the original string while every getter (`getDate`, `getMonth`, `toLocaleDateString`) reads local time. Two adjacent logs can both "look right".
-5.  **Keep calendar dates as strings end to end.** Compare and sort ISO `YYYY-MM-DD` strings directly; pickers get `valueFormat`, not `Date` objects.
-6.  **If a `Date` is unavoidable, construct it from parts and anchor at noon local** — `new Date(y, m - 1, d, 12)` cannot cross a midnight boundary under a timezone shift. Months are 0-based.
-7.  **Format with `timeZone: "UTC"` when re-displaying a date-only value**, or use `Temporal.PlainDate` — both make the rendering identical for every user on the planet.
+1.  **`Date` is a moment, not a date.** Under the hood it's one number: milliseconds since 1970 UTC. Shows as a "day" only after a local-time conversion — and that conversion depends on where the user lives.
+2.  **Parsing depends on the string's shape:** `"2026-03-01"` → midnight UTC; `"2026-03-01T00:00:00"` (no zone) → midnight local. Adding and removing the time part changes the timezone the browser assumes.
+3.  **The bug has two exits — my first write-up missed one:** west of UTC it bites on **display** (parse date-only → local day slides back); east of UTC it bites on **save** (local-midnight `Date` + `toISOString()` → stored day slides back). Near UTC you see nothing, which is how it ships.
+4.  **`toISOString()` "lies" while debugging:** it re-prints the original string and the log looks fine, while local getters on the next line show the shifted day. Don't trust the first good-looking log.
+5.  **Keep calendar dates as strings through the whole pipeline.** Validate the `YYYY-MM-DD` shape and compare strings directly — but only because they're equal-length and zero-padded.
+6.  **When a `Date` is forced on you, build it from parts at local noon** — `new Date(y, m - 1, d, 12)`. Noon can't slide across midnight; months count from 0.
+7.  **Choose one timezone and keep it explicit end to end** (format with `timeZone: "UTC"` when re-showing a date-only value). The bug lives wherever a conversion happens silently. Or better: use `Temporal.PlainDate`, which has no zone to switch at all.
 
 
 [⬅ Back to articles](../README.md)
