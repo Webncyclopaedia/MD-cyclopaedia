@@ -22,6 +22,9 @@ Everything here comes from shipped front-end work - SPA landing pages, Vite + Re
 | 12  | 📅 [The booking that jumped a day back: `new Date("2026-03-01")` is not the date you think](./articles/date-iso-utc-off-by-one-day.md) | Date-only strings parsed as UTC midnight: the day slides back on display west of UTC and on save east of it |
 | 13  | ⚖️ ["1,299" became €1.30: one separator, no locale](./articles/price-separator-ambiguity.md)                                           | A separator heuristic silently divides whole-euro prices by 1000                              |
 | 14  | 🔢 [The order that belonged to someone else: `JSON.parse` and integers above 2^53](./articles/json-bigint-id-precision-loss.md)        | 64-bit IDs sent as JSON numbers: `JSON.parse` rounds two orders into one key                 |
+| 15  | 🔢 [Chrome on Android: input focus breaks sticky footer positioning](./articles/input-focus-breaks-sticky-footer.md)        | the virtual keyboard slides up, and the sticky footer button "jumps" directly on top of the keyboard                 |
+
+
 
 ## 💡 Navigation tip
 
